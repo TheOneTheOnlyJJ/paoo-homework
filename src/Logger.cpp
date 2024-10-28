@@ -4,38 +4,80 @@
 using namespace std;
 
 Logger::Logger(const string& scope)
-    : scope(scope) {
-    cout << "Initialising logger with scope: " << scope << endl;
+    : scope(scope), logLevel(Logger::DEFAULT_LOG_LEVEL) {
+    cout << "Initialising logger with scope: " << this->scope << " and default log level: " << Logger::logLevelToString(this->logLevel) << "." << endl;
 }
 
-Logger::~Logger() {
-    cout << "Destroying logger with scope: " << scope << endl;
+Logger::Logger(const string& scope, const Logger::LogLevels logLevel)
+    : scope(scope), logLevel(logLevel) {
+    cout << "Initialising logger with scope: " << this->scope << " and log level: " << Logger::logLevelToString(this->logLevel) << "." << endl;
 }
 
-void Logger::log(const string& level, const string& message) const {
-    cout << "[" << getCurrentDateTime() << "] [" << level << "] (" << scope << ") : " << message << endl;
+Logger::~Logger()
+{
+    cout << "Destroying logger with scope: " << this->scope << "." << endl;
 }
 
-void Logger::silly(const string& message) const {
-    Logger::log("silly", message);
+string Logger::logLevelToString(Logger::LogLevels logLevel)
+{
+    switch (logLevel) {
+        case Logger::LogLevels::SILLY: return "SILLY";
+        case Logger::LogLevels::VERBOSE: return "VERBOSE";
+        case Logger::LogLevels::DEBUG: return "DEBUG";
+        case Logger::LogLevels::INFO: return "INFO";
+        case Logger::LogLevels::WARN: return "WARN";
+        case Logger::LogLevels::ERROR: return "ERROR";
+        default: return "UNKNOWN";
+    }
 }
 
-void Logger::verbose(const string& message) const {
-    Logger::log("verbose", message);
+void Logger::log(const Logger::LogLevels logLevel, const string& message) const
+{
+    if (logLevel < this->logLevel)
+    {
+        return;
+    }
+    cout << "[" << getCurrentDateTime() << "] [" << Logger::logLevelToString(logLevel) << "] (" << this->scope << ") : " << message << endl;
 }
 
-void Logger::debug(const string& message) const {
-    Logger::log("debug", message);
+Logger::LogLevels Logger::getLogLevel()
+{
+    cout << "Getting log level." << endl;
+    return this->logLevel;
 }
 
-void Logger::info(const string& message) const {
-    Logger::log("info", message);
+void Logger::setLogLevel(Logger::LogLevels logLevel)
+{
+    cout << "Setting log level to: " << Logger::logLevelToString(logLevel) << "." << endl;
+    this->logLevel = logLevel;
 }
 
-void Logger::warn(const string& message) const {
-    Logger::log("warn", message);
+void Logger::silly(const string& message) const
+{
+    Logger::log(Logger::LogLevels::SILLY, message);
 }
 
-void Logger::error(const string& message) const {
-    Logger::log("error", message);
+void Logger::verbose(const string& message) const
+{
+    Logger::log(Logger::LogLevels::VERBOSE, message);
+}
+
+void Logger::debug(const string& message) const
+{
+    Logger::log(Logger::LogLevels::DEBUG, message);
+}
+
+void Logger::info(const string& message) const
+{
+    Logger::log(Logger::LogLevels::INFO, message);
+}
+
+void Logger::warn(const string& message) const
+{
+    Logger::log(Logger::LogLevels::WARN, message);
+}
+
+void Logger::error(const string& message) const
+{
+    Logger::log(Logger::LogLevels::ERROR, message);
 }

@@ -1,36 +1,44 @@
-#include "include/Logger.h"
+#include "Logger.hpp"
 
 using namespace std;
 
-void runAddition(const Logger* logger) {
-    int accumulator = 0, number;
+int runSummation(const Logger* logger) {
+    int sum = 0, number;
     string input;
-    logger->info("Enter numbers to sum, 0 to end.");
+    logger->info("Enter numbers to sum, end to exit.");
     while (true) {
         cout << "> ";
         getline(cin, input);
         try {
             number = stoi(input);
             if (number == 0) {
-                logger->info("Input is 0. Exiting input loop.");
-                break;
+                logger->warn("Input is 0. Sum unchanged.");
             }
             if (number < 0) {
                 logger->warn("Negative input. Sum decreasing.");
+            } else {
+                logger->silly("Input is " + to_string(number) + ".");
             }
-            accumulator += number;
-            logger->debug("Current sum: " + to_string(accumulator) + ".");
+            sum += number;
+            logger->debug("Current sum: " + to_string(sum) + ".");
         } catch (invalid_argument&) {
-            logger->error("Invalid input \"" + input + "\"!");
+            if (input == "end") {
+                logger->info("Ending summation.");
+                break;
+            } else {
+                logger->error("Invalid input \"" + input + "\"!");
+            }
         }
     }
-    logger->info("Final sum: " + to_string(accumulator) + ".");
+    logger->debug("Returning " + to_string(sum) + ".");
+    return sum;
 }
 
 int main() {
-    Logger additionLogger("main-addition");
+    Logger summationLogger("main-summation");
 
-    runAddition(&additionLogger);
+    int sum = runSummation(&summationLogger);
+    summationLogger.verbose("Summation result is " + to_string(sum) + ".");
 
     return 0;
 }

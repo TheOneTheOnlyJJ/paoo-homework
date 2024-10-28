@@ -1,5 +1,5 @@
-#include "../include/Logger.h"
-#include "../include/utils.h"
+#include "../inc/Logger.hpp"
+#include "../inc/utils.hpp"
 
 using namespace std;
 

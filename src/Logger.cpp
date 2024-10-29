@@ -13,9 +13,22 @@ Logger::Logger(const string& scope, const Logger::LogLevels logLevel)
     cout << "Initialising logger with scope: " << this->scope << " and log level: " << Logger::logLevelToString(this->logLevel) << "." << endl;
 }
 
+Logger::Logger(const Logger& other) 
+    : scope(other.scope), logLevel(other.logLevel) {
+    cout << "Initialising logger with scope: " << this->scope << " and log level: " << Logger::logLevelToString(this->logLevel) << " using copy constructor." << endl;
+}
+
 Logger::~Logger()
 {
     cout << "Destroying logger with scope: " << this->scope << "." << endl;
+}
+
+Logger& Logger::operator=(const Logger& other)
+{
+    cout << "Assigning logger with scope " << other.scope << " to logger with scope " << this->scope << "." << endl;
+    this->scope = other.scope;
+    this->logLevel = other.logLevel;
+    return *this;
 }
 
 string Logger::logLevelToString(Logger::LogLevels logLevel)

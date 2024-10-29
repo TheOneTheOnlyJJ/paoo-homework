@@ -9,9 +9,9 @@ int runSummation(const Logger* logger) {
     while (true) {
         cout << "> ";
         getline(cin, input);
+        logger->silly("Input is " + to_string(number) + ".");
         try {
             number = stoi(input);
-            logger->silly("Input is " + to_string(number) + ".");
             if (number == 0) {
                 logger->warn("Input is 0. Sum unchanged.");
             } else if (number < 0) {
@@ -33,9 +33,19 @@ int runSummation(const Logger* logger) {
 }
 
 int main() {
-    Logger summationLogger("main-summation", Logger::LogLevels::SILLY);
+    // Initialise loggers
+    Logger mainLogger("main", Logger::LogLevels::SILLY);
+    Logger summationLogger("summation", Logger::LogLevels::SILLY);
+
+    // Test loggers
+    mainLogger.verbose("Running summation...");
     int sum = runSummation(&summationLogger);
-    summationLogger.verbose("Summation result is " + to_string(sum) + ".");
-    // TODO: Override assignment operator
+    mainLogger.verbose("Summation result is " + to_string(sum) + ".");
+
+    // Test assignment operator
+    mainLogger.debug("This is a main logger message before being assigned to the summation logger.");
+    mainLogger = summationLogger;
+    mainLogger.debug("This is a main logger message after being assigned to the summation logger.");
+
     return 0;
 }

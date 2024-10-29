@@ -72,6 +72,5 @@ int main()
     main_logger = summation_logger;
     main_logger.debug("This is a main logger message after being assigned to the summation logger.");
 
-    // TODO: Add constructors that include the ansi code map.
     return 0;
 }

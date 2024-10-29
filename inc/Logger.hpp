@@ -21,6 +21,34 @@ public:
         WARN,
         ERROR
     };
+    // Static attributes
+    
+    // Static methods
+
+    // Instance attributes
+    bool ansi_codes_enabled = true;
+    // Constructors & destructors
+    explicit Logger(const string& scope);
+    Logger(const string& scope, const Logger::LogLevel log_level);
+    Logger(const Logger& other);
+    ~Logger();
+    // Instance methods
+    Logger& operator=(const Logger& other);
+    void silly(const string& message) const;
+    void verbose(const string& message) const;
+    void debug(const string& message) const;
+    void info(const string& message) const;
+    void warn(const string& message) const;
+    void error(const string& message) const;
+    Logger::LogLevel getLogLevel() const;
+    void setLogLevel(const Logger::LogLevel log_level);
+    vector<AnsiCode> getTimestampAnsiCodes() const;
+    void setTimestampAnsiCodes(const vector<AnsiCode> ansi_codes);
+    vector<AnsiCode> getScopeAnsiCodes() const;
+    void setScopeAnsiCodes(const vector<AnsiCode> ansi_codes);
+    vector<AnsiCode> getLogLevelAnsiCodes(const Logger::LogLevel log_level) const;
+    void setLogLevelAnsiCodes(const Logger::LogLevel log_level, const vector<AnsiCode> ansi_codes);
+private:
     struct AnsiCodeMap
     {
         vector<AnsiCode> timestamp, scope;
@@ -38,35 +66,13 @@ public:
         }
     };
     // Static attributes
-
-    // Static methods
-
-    // Instance attributes
-    Logger::AnsiCodeMap ansi_code_map;
-    bool use_ansi_codes = true;
-    // Constructors & destructors
-    explicit Logger(const string& scope);
-    Logger(const string& scope, const Logger::LogLevel log_level);
-    Logger(const Logger& other);
-    ~Logger();
-    // Instance methods
-    Logger& operator=(const Logger& other);
-    Logger::LogLevel getLogLevel() const;
-    void setLogLevel(Logger::LogLevel log_level);
-    void silly(const string& message) const;
-    void verbose(const string& message) const;
-    void debug(const string& message) const;
-    void info(const string& message) const;
-    void warn(const string& message) const;
-    void error(const string& message) const;
-private:
-    // Static attributes
     static const Logger::LogLevel DEFAULT_LOG_LEVEL = Logger::LogLevel::INFO;
     // Static methods
-    static string logLevelToString(Logger::LogLevel log_level);
+    static string logLevelToString(const Logger::LogLevel log_level);
     // Instance attributes
     Logger::LogLevel log_level;
     string scope;
+    Logger::AnsiCodeMap ansi_code_map;
     // Instance methods
     void log(const Logger::LogLevel log_level, const string& message) const;
 };

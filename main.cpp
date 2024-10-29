@@ -46,19 +46,32 @@ int runSummation(const Logger* logger)
 int main()
 {
     // Initialise loggers
-    Logger mainLogger("main", Logger::LogLevel::SILLY);
-    Logger summationLogger("summation", Logger::LogLevel::SILLY);
+    Logger main_logger("main", Logger::LogLevel::SILLY);
+    Logger summation_logger("summation", Logger::LogLevel::SILLY);
 
-    // Test loggers
-    mainLogger.verbose("Running summation...");
-    int sum = runSummation(&summationLogger);
-    mainLogger.verbose("Summation result is " + to_string(sum) + ".");
+    // Set logger ANSI codes
+    main_logger.info("Setting custom background color to main logger.");
+    main_logger.setScopeAnsiCodes({ AnsiCode::YELLOW });
+    main_logger.info("Setting custom timestamp and scope colors on summation logger.");
+    summation_logger.setTimestampAnsiCodes({ AnsiCode::CYAN });
+    summation_logger.setScopeAnsiCodes({ AnsiCode::UNDERLINE, AnsiCode::BLUE });
+
+    // Test logger output
+    summation_logger.verbose("Running summation...");
+    int sum = runSummation(&summation_logger);
+    summation_logger.verbose("Summation result is " + to_string(sum) + ".");
+
+    // Disable logger ANSI codes
+    main_logger.info("Disabling ANSI codes on summation logger.");
+    summation_logger.ansi_codes_enabled = false;
+    summation_logger.info("I lost my colors...");
 
     // Test assignment operator
-    mainLogger.debug("This is a main logger message before being assigned to the summation logger.");
-    mainLogger = summationLogger;
-    mainLogger.debug("This is a main logger message after being assigned to the summation logger.");
+    main_logger.info("Assigning summation logger to main logger.");
+    main_logger.debug("This is a main logger message before being assigned to the summation logger.");
+    main_logger = summation_logger;
+    main_logger.debug("This is a main logger message after being assigned to the summation logger.");
 
-    // TODO: Break up very long line in log method. Make ansi code map private, add getters and setters for the specific components. Add constructors that include the ansi code map.
+    // TODO: Add constructors that include the ansi code map.
     return 0;
 }

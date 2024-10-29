@@ -3,7 +3,6 @@
 
 using namespace std;
 
-// Lifecycle management
 Logger::Logger(const string& scope)
     : scope(scope), log_level(Logger::DEFAULT_LOG_LEVEL)
 {
@@ -27,31 +26,17 @@ Logger::~Logger()
     cout << "Destroying logger with scope: " << this->scope << "." << endl;
 }
 
-// Operator overloads
 Logger& Logger::operator=(const Logger& other)
 {
     cout << "Assigning logger with scope " << other.scope << " to logger with scope " << this->scope << "." << endl;
     this->scope = other.scope;
     this->log_level = other.log_level;
     this->ansi_code_map = other.ansi_code_map;
+    this->ansi_codes_enabled = other.ansi_codes_enabled;
     return *this;
 }
 
-// Log level methods
-Logger::LogLevel Logger::getLogLevel() const
-{
-    cout << "Getting log level." << endl;
-    return this->log_level;
-}
-
-void Logger::setLogLevel(Logger::LogLevel log_level)
-{
-    cout << "Setting log level to: " << Logger::logLevelToString(log_level) << "." << endl;
-    this->log_level = log_level;
-}
-
-
-string Logger::logLevelToString(Logger::LogLevel log_level)
+string Logger::logLevelToString(const Logger::LogLevel log_level)
 {
     switch (log_level) {
         case Logger::LogLevel::SILLY:
@@ -77,15 +62,17 @@ void Logger::log(const Logger::LogLevel log_level, const string& message) const
     {
         return;
     }
-    if (this->use_ansi_codes)
+    if (this->ansi_codes_enabled)
     {
-        cout << wrapWithAnsiCodes(this->ansi_code_map.timestamp, "[" + getCurrentDateTime() + "]") << " " << wrapWithAnsiCodes(this->ansi_code_map.level.at(log_level), "(" + Logger::logLevelToString(log_level) + ")") << " " << wrapWithAnsiCodes(this->ansi_code_map.scope, "(" + this->scope + ")") << ": " << message << endl;
+        const string TIMESTAMP = wrapWithAnsiCodes(this->ansi_code_map.timestamp, "[" + getCurrentDateTime() + "]");
+        const string LOG_LEVEL = wrapWithAnsiCodes(this->ansi_code_map.level.at(log_level), "(" + Logger::logLevelToString(log_level) + ")");
+        const string SCOPE = wrapWithAnsiCodes(this->ansi_code_map.scope, "(" + this->scope + ")");
+        cout << TIMESTAMP << " " << LOG_LEVEL << " " << SCOPE << ": " << message << endl;
         return;
     }
     cout << "[" << getCurrentDateTime() << "] [" << Logger::logLevelToString(log_level) << "] (" << this->scope << ") : " << message << endl;
 }
 
-// Log methods
 void Logger::silly(const string& message) const
 {
     Logger::log(Logger::LogLevel::SILLY, message);
@@ -114,4 +101,52 @@ void Logger::warn(const string& message) const
 void Logger::error(const string& message) const
 {
     Logger::log(Logger::LogLevel::ERROR, message);
+}
+
+Logger::LogLevel Logger::getLogLevel() const
+{
+    cout << "Getting log level." << endl;
+    return this->log_level;
+}
+
+void Logger::setLogLevel(const Logger::LogLevel log_level)
+{
+    cout << "Setting log level to: " << Logger::logLevelToString(log_level) << "." << endl;
+    this->log_level = log_level;
+}
+
+vector<AnsiCode> Logger::getTimestampAnsiCodes() const
+{
+    cout << "Getting timestamp ANSI codes." << endl;
+    return this->ansi_code_map.timestamp;
+}
+
+void Logger::setTimestampAnsiCodes(const vector<AnsiCode> ansi_codes)
+{
+    cout << "Setting timestamp ANSI codes." << endl;
+    this->ansi_code_map.timestamp = ansi_codes;
+}
+
+vector<AnsiCode> Logger::getScopeAnsiCodes() const
+{
+    cout << "Getting scope ANSI codes." << endl;
+    return this->ansi_code_map.scope;
+}
+
+void Logger::setScopeAnsiCodes(const vector<AnsiCode> ansi_codes)
+{
+    cout << "Setting scope ANSI codes." << endl;
+    this->ansi_code_map.scope = ansi_codes;
+}
+
+vector<AnsiCode> Logger::getLogLevelAnsiCodes(const Logger::LogLevel log_level) const
+{
+    cout << "Getting log level " << Logger::logLevelToString(log_level) << " ANSI codes." << endl;
+    return this->ansi_code_map.level.at(log_level);
+}
+
+void Logger::setLogLevelAnsiCodes(const Logger::LogLevel log_level, const vector<AnsiCode> ansi_codes)
+{
+    cout << "Setting log level " << Logger::logLevelToString(log_level) << " ANSI codes." << endl;
+    this->ansi_code_map.level[log_level] = ansi_codes;
 }

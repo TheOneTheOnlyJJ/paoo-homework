@@ -65,7 +65,7 @@ void Logger::log(const Logger::LogLevel log_level, const string& message) const
     if (this->ansi_codes_enabled)
     {
         const string TIMESTAMP = wrapWithAnsiCodes(this->ansi_code_map.timestamp, "[" + getCurrentDateTime() + "]");
-        const string LOG_LEVEL = wrapWithAnsiCodes(this->ansi_code_map.level.at(log_level), "(" + Logger::logLevelToString(log_level) + ")");
+        const string LOG_LEVEL = wrapWithAnsiCodes(this->ansi_code_map.level.at(log_level), "[" + Logger::logLevelToString(log_level) + "]");
         const string SCOPE = wrapWithAnsiCodes(this->ansi_code_map.scope, "(" + this->scope + ")");
         cout << TIMESTAMP << " " << LOG_LEVEL << " " << SCOPE << ": " << message << endl;
         return;

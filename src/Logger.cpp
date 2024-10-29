@@ -3,19 +3,23 @@
 
 using namespace std;
 
+// Lifecycle management
 Logger::Logger(const string& scope)
-    : scope(scope), logLevel(Logger::DEFAULT_LOG_LEVEL) {
-    cout << "Initialising logger with scope: " << this->scope << " and default log level: " << Logger::logLevelToString(this->logLevel) << "." << endl;
+    : scope(scope), log_level(Logger::DEFAULT_LOG_LEVEL)
+{
+    cout << "Initialising logger with scope: " << this->scope << " and default log level: " << Logger::logLevelToString(this->log_level) << "." << endl;
 }
 
-Logger::Logger(const string& scope, const Logger::LogLevels logLevel)
-    : scope(scope), logLevel(logLevel) {
-    cout << "Initialising logger with scope: " << this->scope << " and log level: " << Logger::logLevelToString(this->logLevel) << "." << endl;
+Logger::Logger(const string& scope, const Logger::LogLevel log_level)
+    : scope(scope), log_level(log_level)
+{
+    cout << "Initialising logger with scope: " << this->scope << " and log level: " << Logger::logLevelToString(this->log_level) << "." << endl;
 }
 
 Logger::Logger(const Logger& other) 
-    : scope(other.scope), logLevel(other.logLevel) {
-    cout << "Initialising logger with scope: " << this->scope << " and log level: " << Logger::logLevelToString(this->logLevel) << " using copy constructor." << endl;
+    : scope(other.scope), log_level(other.log_level)
+{
+    cout << "Initialising logger with scope: " << this->scope << " and log level: " << Logger::logLevelToString(this->log_level) << " using copy constructor." << endl;
 }
 
 Logger::~Logger()
@@ -23,74 +27,91 @@ Logger::~Logger()
     cout << "Destroying logger with scope: " << this->scope << "." << endl;
 }
 
+// Operator overloads
 Logger& Logger::operator=(const Logger& other)
 {
     cout << "Assigning logger with scope " << other.scope << " to logger with scope " << this->scope << "." << endl;
     this->scope = other.scope;
-    this->logLevel = other.logLevel;
+    this->log_level = other.log_level;
+    this->ansi_code_map = other.ansi_code_map;
     return *this;
 }
 
-string Logger::logLevelToString(Logger::LogLevels logLevel)
+// Log level methods
+Logger::LogLevel Logger::getLogLevel() const
 {
-    switch (logLevel) {
-        case Logger::LogLevels::SILLY: return "SILLY";
-        case Logger::LogLevels::VERBOSE: return "VERBOSE";
-        case Logger::LogLevels::DEBUG: return "DEBUG";
-        case Logger::LogLevels::INFO: return "INFO";
-        case Logger::LogLevels::WARN: return "WARN";
-        case Logger::LogLevels::ERROR: return "ERROR";
-        default: return "UNKNOWN";
+    cout << "Getting log level." << endl;
+    return this->log_level;
+}
+
+void Logger::setLogLevel(Logger::LogLevel log_level)
+{
+    cout << "Setting log level to: " << Logger::logLevelToString(log_level) << "." << endl;
+    this->log_level = log_level;
+}
+
+
+string Logger::logLevelToString(Logger::LogLevel log_level)
+{
+    switch (log_level) {
+        case Logger::LogLevel::SILLY:
+            return "SILLY";
+        case Logger::LogLevel::VERBOSE:
+            return "VERBOSE";
+        case Logger::LogLevel::DEBUG:
+            return "DEBUG";
+        case Logger::LogLevel::INFO:
+            return "INFO";
+        case Logger::LogLevel::WARN:
+            return "WARN";
+        case Logger::LogLevel::ERROR:
+            return "ERROR";
+        default:
+            return "UNKNOWN";
     }
 }
 
-void Logger::log(const Logger::LogLevels logLevel, const string& message) const
+void Logger::log(const Logger::LogLevel log_level, const string& message) const
 {
-    if (logLevel < this->logLevel)
+    if (log_level < this->log_level)
     {
         return;
     }
-    cout << "[" << getCurrentDateTime() << "] [" << Logger::logLevelToString(logLevel) << "] (" << this->scope << ") : " << message << endl;
+    if (this->use_ansi_codes)
+    {
+        cout << wrapWithAnsiCodes(this->ansi_code_map.timestamp, "[" + getCurrentDateTime() + "]") << " " << wrapWithAnsiCodes(this->ansi_code_map.level.at(log_level), "(" + Logger::logLevelToString(log_level) + ")") << " " << wrapWithAnsiCodes(this->ansi_code_map.scope, "(" + this->scope + ")") << ": " << message << endl;
+        return;
+    }
+    cout << "[" << getCurrentDateTime() << "] [" << Logger::logLevelToString(log_level) << "] (" << this->scope << ") : " << message << endl;
 }
 
-Logger::LogLevels Logger::getLogLevel()
-{
-    cout << "Getting log level." << endl;
-    return this->logLevel;
-}
-
-void Logger::setLogLevel(Logger::LogLevels logLevel)
-{
-    cout << "Setting log level to: " << Logger::logLevelToString(logLevel) << "." << endl;
-    this->logLevel = logLevel;
-}
-
+// Log methods
 void Logger::silly(const string& message) const
 {
-    Logger::log(Logger::LogLevels::SILLY, message);
+    Logger::log(Logger::LogLevel::SILLY, message);
 }
 
 void Logger::verbose(const string& message) const
 {
-    Logger::log(Logger::LogLevels::VERBOSE, message);
+    Logger::log(Logger::LogLevel::VERBOSE, message);
 }
 
 void Logger::debug(const string& message) const
 {
-    Logger::log(Logger::LogLevels::DEBUG, message);
+    Logger::log(Logger::LogLevel::DEBUG, message);
 }
 
 void Logger::info(const string& message) const
 {
-    Logger::log(Logger::LogLevels::INFO, message);
+    Logger::log(Logger::LogLevel::INFO, message);
 }
 
 void Logger::warn(const string& message) const
 {
-    Logger::log(Logger::LogLevels::WARN, message);
+    Logger::log(Logger::LogLevel::WARN, message);
 }
 
 void Logger::error(const string& message) const
 {
-    Logger::log(Logger::LogLevels::ERROR, message);
+    Logger::log(Logger::LogLevel::ERROR, message);
 }

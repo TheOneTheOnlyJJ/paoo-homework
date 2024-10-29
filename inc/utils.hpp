@@ -1,5 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -39,5 +38,3 @@ enum class AnsiCode : uint8_t
 string getAnsiCode(const AnsiCode color);
 string wrapWithAnsiCodes(const vector<AnsiCode>& ansi_codes, const string& target);
 string getCurrentDateTime();
-
-#endif // UTILS_H

@@ -1,5 +1,4 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
 #include <string>
 #include <iostream>
@@ -76,5 +75,3 @@ private:
     // Instance methods
     void log(const Logger::LogLevel log_level, const string& message) const;
 };
-
-#endif // LOGGER_H

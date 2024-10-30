@@ -33,7 +33,8 @@ int runSummation(const Logger* logger)
             {
                 logger->info("Ending summation.");
                 break;
-            } else
+            }
+            else
             {
                 logger->error("Invalid input \"" + input + "\"!");
             }

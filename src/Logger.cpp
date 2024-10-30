@@ -38,7 +38,8 @@ Logger& Logger::operator=(const Logger& other)
 
 string Logger::logLevelToString(const Logger::LogLevel log_level)
 {
-    switch (log_level) {
+    switch (log_level)
+    {
         case Logger::LogLevel::SILLY:
             return "SILLY";
         case Logger::LogLevel::VERBOSE:

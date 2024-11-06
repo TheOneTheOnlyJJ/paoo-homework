@@ -70,7 +70,7 @@ private:
     static string logLevelToString(const Logger::LogLevel log_level);
     // Instance attributes
     Logger::LogLevel log_level;
-    string scope;
+    char* scope;
     Logger::AnsiCodeMap ansi_code_map;
     // Instance methods
     void log(const Logger::LogLevel log_level, const string& message) const;

@@ -55,7 +55,7 @@ int main()
     main_logger.setScopeAnsiCodes({ AnsiCode::YELLOW });
     main_logger.info("Setting custom timestamp and scope colors on summation logger.");
     summation_logger.setTimestampAnsiCodes({ AnsiCode::CYAN });
-    summation_logger.setScopeAnsiCodes({ AnsiCode::UNDERLINE, AnsiCode::BLUE });
+    summation_logger.setScopeAnsiCodes({ AnsiCode::UNDERLINE, AnsiCode::MAGENTA });
 
     // Test logger output
     summation_logger.verbose("Running summation...");

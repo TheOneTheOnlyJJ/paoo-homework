@@ -5,7 +5,7 @@
 using namespace std;
 
 Logger::Logger(const string& scope)
-    : scope((char *)malloc((scope.length() + 1) * sizeof(char))), log_level(Logger::DEFAULT_LOG_LEVEL)
+    : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(Logger::DEFAULT_LOG_LEVEL)
 {
     if (!this->scope) {
         exit(EXIT_FAILURE);
@@ -15,7 +15,7 @@ Logger::Logger(const string& scope)
 }
 
 Logger::Logger(const string& scope, const Logger::LogLevel log_level)
-    : scope((char *)malloc((scope.length() + 1) * sizeof(char))), log_level(log_level)
+    : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(log_level)
 {
     if (!this->scope) {
         exit(EXIT_FAILURE);
@@ -25,7 +25,7 @@ Logger::Logger(const string& scope, const Logger::LogLevel log_level)
 }
 
 Logger::Logger(const Logger& other) 
-    : scope((char *)malloc((strlen(other.scope) + 1) * sizeof(char))), log_level(other.log_level)
+    : scope((char *) malloc((strlen(other.scope) + 1) * sizeof(char))), log_level(other.log_level)
 {
     if (!this->scope) {
         exit(EXIT_FAILURE);
@@ -43,7 +43,7 @@ Logger::~Logger()
 Logger& Logger::operator=(const Logger& other)
 {
     cout << "Assigning logger with scope " << other.scope << " to logger with scope " << this->scope << "." << endl;
-    this->scope = (char *)malloc((strlen(other.scope) + 1) * sizeof(char));
+    this->scope = (char *) malloc((strlen(other.scope) + 1) * sizeof(char));
     if (!this->scope) {
         exit(EXIT_FAILURE);
     }
@@ -85,15 +85,16 @@ void Logger::log(const Logger::LogLevel log_level, const string& message) const
     string TIMESTAMP = "[" + getCurrentDateTime() + "]";
     string LOG_LEVEL = "[" + Logger::logLevelToString(log_level) + "]";
     // Scope requires c-string handling
-    const size_t SCOPE_BUFFER_LENGTH = strlen(this->scope) + 2;
-    char* SCOPE_BUFFER = (char *)malloc(SCOPE_BUFFER_LENGTH * sizeof(char));
+    const size_t SCOPE_BUFFER_LENGTH = strlen(this->scope) + 3;
+    char *SCOPE_BUFFER = (char *) malloc(SCOPE_BUFFER_LENGTH * sizeof(char));
     if (!SCOPE_BUFFER) {
         exit(EXIT_FAILURE);
     }
     SCOPE_BUFFER[0] = '(';
+    SCOPE_BUFFER[1] = '\0';
     strcat(SCOPE_BUFFER, this->scope);
-    SCOPE_BUFFER[SCOPE_BUFFER_LENGTH - 1] = ')';
-    SCOPE_BUFFER[SCOPE_BUFFER_LENGTH] = '\0';
+    SCOPE_BUFFER[SCOPE_BUFFER_LENGTH - 2] = ')';
+    SCOPE_BUFFER[SCOPE_BUFFER_LENGTH - 1] = '\0';
     string SCOPE = SCOPE_BUFFER;
     
     if (this->ansi_codes_enabled)

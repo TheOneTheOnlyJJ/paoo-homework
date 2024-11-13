@@ -1,9 +1,10 @@
-#include "Logger.hpp"
+#include "BaseLogger.hpp"
+#include "StdoutLogger.hpp"
 #include "utils.hpp"
 
 using namespace std;
 
-int runSummation(const Logger* logger)
+int runSummation(const BaseLogger* logger)
 {
     int sum = 0;
     string input;
@@ -47,8 +48,8 @@ int runSummation(const Logger* logger)
 int main()
 {
     // Initialise loggers
-    Logger main_logger("main", Logger::LogLevel::SILLY);
-    Logger summation_logger("summation", Logger::LogLevel::SILLY);
+    StdoutLogger main_logger("main", BaseLogger::LogLevel::SILLY);
+    StdoutLogger summation_logger("summation", BaseLogger::LogLevel::SILLY);
 
     // Set logger ANSI codes
     main_logger.info("Setting custom background color to main logger.");

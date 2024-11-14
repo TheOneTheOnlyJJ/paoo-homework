@@ -11,16 +11,20 @@ class StdoutLogger : public BaseLogger
 {
 public:
     // Static attributes
+    static const bool DEFAULT_ANSI_CODES_ENABLED = true;
     // Static methods
     // Instance attributes
-    bool ansi_codes_enabled = true;
+    bool ansi_codes_enabled = DEFAULT_ANSI_CODES_ENABLED;
     // Constructors & destructors
+    StdoutLogger() = delete;
     explicit StdoutLogger(const string& scope);
     StdoutLogger(const string& scope, const BaseLogger::LogLevel log_level);
     StdoutLogger(const StdoutLogger& other);
+    StdoutLogger(StdoutLogger&& other);
     ~StdoutLogger();
     // Instance methods
     StdoutLogger& operator=(const StdoutLogger& other);
+    StdoutLogger& operator=(StdoutLogger&& other);
     vector<AnsiCode> getTimestampAnsiCodes() const;
     void setTimestampAnsiCodes(const vector<AnsiCode> ansi_codes);
     vector<AnsiCode> getScopeAnsiCodes() const;

@@ -25,12 +25,15 @@ public:
     // Static methods
     // Instance attributes
     // Constructors & destructors
+    BaseLogger() = delete;
     explicit BaseLogger(const string& scope);
     BaseLogger(const string& scope, const BaseLogger::LogLevel log_level);
     BaseLogger(const BaseLogger& other);
+    BaseLogger(BaseLogger&& other);
     virtual ~BaseLogger();
     // Instance methods
     BaseLogger& operator=(const BaseLogger& other);
+    BaseLogger& operator=(BaseLogger&& other);
     void silly(const string& message) const;
     void verbose(const string& message) const;
     void debug(const string& message) const;

@@ -1,6 +1,7 @@
 #include <cstring>
 #include "../inc/BaseLogger.hpp"
 #include "../inc/utils.hpp"
+#include "BaseLogger.hpp"
 
 using namespace std;
 
@@ -34,9 +35,16 @@ BaseLogger::BaseLogger(const BaseLogger& other)
     cout << "Initialised BaseLogger with scope: " << this->scope << " and log level: " << BaseLogger::logLevelToString(this->log_level) << " using copy constructor." << endl;
 }
 
+BaseLogger::BaseLogger(BaseLogger&& other)
+    : scope(other.scope), log_level(other.log_level)
+{
+    other.scope = nullptr;
+    cout << "Initialised BaseLogger with scope: " << this->scope << " and log level: " << BaseLogger::logLevelToString(this->log_level) << " using move constructor." << endl;
+}
+
 BaseLogger::~BaseLogger()
 {
-    cout << "Destroying BaseLogger with scope: " << this->scope << "." << endl;
+    cout << "Destroying BaseLogger with scope: " << (this->scope ? this->scope : "nullptr") << "." << endl;
     free(this->scope);
 }
 
@@ -55,6 +63,22 @@ BaseLogger& BaseLogger::operator=(const BaseLogger& other)
         }
         strcpy(this->scope, other.scope);
         this->log_level = other.log_level;
+    } else {
+        cout << "Self-assignment detected. No-op." << endl;
+    }
+    return *this;
+}
+
+BaseLogger& BaseLogger::operator=(BaseLogger&& other)
+{
+    if (this != &other)
+    {
+        if (scope) {
+            free(scope);
+        }
+        scope = other.scope;
+        log_level = other.log_level;
+        other.scope = nullptr;
     } else {
         cout << "Self-assignment detected. No-op." << endl;
     }

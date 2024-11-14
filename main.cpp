@@ -50,9 +50,10 @@ int main()
     // Initialise loggers
     StdoutLogger main_logger("main", BaseLogger::LogLevel::SILLY);
     StdoutLogger summation_logger("summation", BaseLogger::LogLevel::SILLY);
+    BaseLogger *maybe_base_logger = new StdoutLogger("maybe-base");
 
     // Set logger ANSI codes
-    main_logger.info("Setting custom background color to main logger.");
+    main_logger.info("Setting custom color to main logger.");
     main_logger.setScopeAnsiCodes({ AnsiCode::YELLOW });
     main_logger.info("Setting custom timestamp and scope colors on summation logger.");
     summation_logger.setTimestampAnsiCodes({ AnsiCode::CYAN });
@@ -64,15 +65,23 @@ int main()
     summation_logger.verbose("Summation result is " + to_string(sum) + ".");
 
     // Disable logger ANSI codes
-    main_logger.info("Disabling ANSI codes on summation logger.");
-    summation_logger.ansi_codes_enabled = false;
-    summation_logger.info("I lost my colors...");
+    // main_logger.info("Disabling ANSI codes on summation logger.");
+    // summation_logger.ansi_codes_enabled = false;
+    // summation_logger.info("I lost my colors...");
 
     // Test assignment operator
-    main_logger.info("Assigning summation logger to main logger.");
-    main_logger.debug("This is a main logger message before being assigned to the summation logger.");
-    main_logger = summation_logger;
-    main_logger.debug("This is a main logger message after being assigned to the summation logger.");
+    // main_logger.info("Assigning summation logger to main logger.");
+    // main_logger.debug("This is a main logger message before being assigned to the summation logger.");
+    // main_logger = summation_logger;
+    // main_logger.debug("This is a main logger message after being assigned to the summation logger.");
+
+    // Test move constructor
+    StdoutLogger main_logger_2 = move(main_logger);
+    main_logger_2.warn("I am main logger 2, just moved from main logger.");
+
+    // Test polymorphism
+    maybe_base_logger->info("I'm the maybe base logger.");
+    delete maybe_base_logger;
 
     return 0;
 }

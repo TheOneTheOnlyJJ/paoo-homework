@@ -18,14 +18,22 @@ StdoutLogger::StdoutLogger(const string& scope, const BaseLogger::LogLevel log_l
 }
 
 StdoutLogger::StdoutLogger(const StdoutLogger& other) 
-    : BaseLogger::BaseLogger(other)
+    : BaseLogger::BaseLogger(other), ansi_codes_enabled(other.ansi_codes_enabled), ansi_code_map(other.ansi_code_map)
 {
     cout << "Initialised StdoutLogger with scope: " << this->scope << " and log level: " << BaseLogger::logLevelToString(this->log_level) << " using copy constructor." << endl;
 }
 
+StdoutLogger::StdoutLogger(StdoutLogger&& other)
+    : BaseLogger::BaseLogger(move(other)), ansi_codes_enabled(other.ansi_codes_enabled), ansi_code_map(move(other.ansi_code_map))
+{
+    other.ansi_codes_enabled = StdoutLogger::DEFAULT_ANSI_CODES_ENABLED;
+    other.ansi_code_map = StdoutLogger::AnsiCodeMap();
+    cout << "Initialised StdoutLogger with scope: " << this->scope << " and log level: " << BaseLogger::logLevelToString(this->log_level) << " using move constructor." << endl;
+}
+
 StdoutLogger::~StdoutLogger()
 {
-    cout <<"Destroying StdoutLogger with scope: " << this->scope << "." << endl;
+    cout << "Destroying StdoutLogger with scope: " << (this->scope ? this->scope : "nullptr") << "." << endl;
 }
 
 void StdoutLogger::log(const BaseLogger::LogLevel log_level, const string &message) const
@@ -60,18 +68,34 @@ void StdoutLogger::log(const BaseLogger::LogLevel log_level, const string &messa
     cout << TIMESTAMP << " " << LOG_LEVEL << " " << SCOPE << ": " << message << endl;
 }
 
-StdoutLogger& StdoutLogger::operator=(const StdoutLogger& other)
+StdoutLogger &StdoutLogger::operator=(const StdoutLogger &other)
 {
     cout << "Assigning StdoutLogger with scope " << other.scope << " to StdoutLogger with scope " << this->scope << "." << endl;
     if (this != &other) {
         BaseLogger::operator=(other);
-        this->ansi_code_map = other.ansi_code_map;
         this->ansi_codes_enabled = other.ansi_codes_enabled;
+        this->ansi_code_map = other.ansi_code_map;
     } else {
         cout << "Self-assignment detected. No-op." << endl;
     }
     return *this;
 }
+
+StdoutLogger& StdoutLogger::operator=(StdoutLogger&& other)
+{
+    if (this != &other)
+    {
+        BaseLogger::operator=(move(other));
+        this->ansi_codes_enabled = other.ansi_codes_enabled;
+        this->ansi_code_map = move(other.ansi_code_map);
+        other.ansi_codes_enabled = StdoutLogger::DEFAULT_ANSI_CODES_ENABLED;
+        other.ansi_code_map = StdoutLogger::AnsiCodeMap();
+    } else {
+        cout << "Self-assignment detected. No-op." << endl;
+    }
+    return *this;
+}
+
 
 vector<AnsiCode> StdoutLogger::getTimestampAnsiCodes() const
 {

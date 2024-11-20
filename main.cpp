@@ -53,16 +53,16 @@ int main()
     BaseLogger *maybe_base_logger = new StdoutLogger("maybe-base");
 
     // Set logger ANSI codes
-    main_logger.info("Setting custom color to main logger.");
-    main_logger.setScopeAnsiCodes({ AnsiCode::YELLOW });
-    main_logger.info("Setting custom timestamp and scope colors on summation logger.");
-    summation_logger.setTimestampAnsiCodes({ AnsiCode::CYAN });
-    summation_logger.setScopeAnsiCodes({ AnsiCode::UNDERLINE, AnsiCode::MAGENTA });
+    // main_logger.info("Setting custom color to main logger.");
+    // main_logger.setScopeAnsiCodes({ AnsiCode::YELLOW });
+    // main_logger.info("Setting custom timestamp and scope colors on summation logger.");
+    // summation_logger.setTimestampAnsiCodes({ AnsiCode::CYAN });
+    // summation_logger.setScopeAnsiCodes({ AnsiCode::UNDERLINE, AnsiCode::MAGENTA });
 
     // Test logger output
-    summation_logger.verbose("Running summation...");
-    int sum = runSummation(&summation_logger);
-    summation_logger.verbose("Summation result is " + to_string(sum) + ".");
+    // summation_logger.verbose("Running summation...");
+    // int sum = runSummation(&summation_logger);
+    // summation_logger.verbose("Summation result is " + to_string(sum) + ".");
 
     // Disable logger ANSI codes
     // main_logger.info("Disabling ANSI codes on summation logger.");
@@ -78,6 +78,9 @@ int main()
     // Test move constructor
     StdoutLogger main_logger_2 = move(main_logger);
     main_logger_2.warn("I am main logger 2, just moved from main logger.");
+    StdoutLogger main_logger_3("main-3");
+    main_logger_3.info("Main logger 2 will move into me.");
+    main_logger_3 = move(main_logger_2);
 
     // Test polymorphism
     maybe_base_logger->info("I'm the maybe base logger.");

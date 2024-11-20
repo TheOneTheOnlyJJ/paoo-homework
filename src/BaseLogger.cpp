@@ -8,7 +8,8 @@ using namespace std;
 BaseLogger::BaseLogger(const string& scope)
     : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(BaseLogger::DEFAULT_LOG_LEVEL)
 {
-    if (!this->scope) {
+    if (!this->scope)
+    {
         exit(EXIT_FAILURE);
     }
     strcpy(this->scope, scope.c_str());
@@ -18,7 +19,8 @@ BaseLogger::BaseLogger(const string& scope)
 BaseLogger::BaseLogger(const string& scope, const BaseLogger::LogLevel log_level)
     : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(log_level)
 {
-    if (!this->scope) {
+    if (!this->scope)
+    {
         exit(EXIT_FAILURE);
     }
     strcpy(this->scope, scope.c_str());
@@ -28,7 +30,8 @@ BaseLogger::BaseLogger(const string& scope, const BaseLogger::LogLevel log_level
 BaseLogger::BaseLogger(const BaseLogger& other) 
     : scope((char *) malloc((strlen(other.scope) + 1) * sizeof(char))), log_level(other.log_level)
 {
-    if (!this->scope) {
+    if (!this->scope)
+    {
         exit(EXIT_FAILURE);
     }
     strcpy(this->scope, other.scope);
@@ -44,8 +47,15 @@ BaseLogger::BaseLogger(BaseLogger&& other)
 
 BaseLogger::~BaseLogger()
 {
-    cout << "Destroying BaseLogger with scope: " << (this->scope ? this->scope : "nullptr") << "." << endl;
-    free(this->scope);
+    if (!this->scope)
+    {
+        cout << "Destroying moved-from BaseLogger." << endl;
+    }
+    else
+    {
+        cout << "Destroying BaseLogger with scope: " << this->scope << "." << endl;
+        free(this->scope);
+    }
 }
 
 void BaseLogger::log(const BaseLogger::LogLevel log_level, const string& message) const
@@ -56,14 +66,18 @@ void BaseLogger::log(const BaseLogger::LogLevel log_level, const string& message
 BaseLogger& BaseLogger::operator=(const BaseLogger& other)
 {
     cout << "Assigning BaseLogger with scope " << other.scope << " to BaseLogger with scope " << this->scope << "." << endl;
-    if (this != &other) {
+    if (this != &other)
+    {
         this->scope = (char *) realloc(this->scope, (strlen(other.scope) + 1) * sizeof(char));
-        if (!this->scope) {
+        if (!this->scope)
+        {
             exit(EXIT_FAILURE);
         }
         strcpy(this->scope, other.scope);
         this->log_level = other.log_level;
-    } else {
+    }
+    else
+    {
         cout << "Self-assignment detected. No-op." << endl;
     }
     return *this;
@@ -71,15 +85,19 @@ BaseLogger& BaseLogger::operator=(const BaseLogger& other)
 
 BaseLogger& BaseLogger::operator=(BaseLogger&& other)
 {
+    cout << "Assigning BaseLogger with scope " << other.scope << " to BaseLogger with scope " << this->scope << " using move assignment operator." << endl;
     if (this != &other)
     {
-        if (scope) {
-            free(scope);
+        if (this->scope)
+        {
+            free(this->scope);
         }
-        scope = other.scope;
-        log_level = other.log_level;
+        this->scope = other.scope;
+        this->log_level = other.log_level;
         other.scope = nullptr;
-    } else {
+    }
+    else
+    {
         cout << "Self-assignment detected. No-op." << endl;
     }
     return *this;

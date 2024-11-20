@@ -33,7 +33,14 @@ StdoutLogger::StdoutLogger(StdoutLogger&& other)
 
 StdoutLogger::~StdoutLogger()
 {
-    cout << "Destroying StdoutLogger with scope: " << (this->scope ? this->scope : "nullptr") << "." << endl;
+    if (!this->scope)
+    {
+        cout << "Destroying moved-from BaseLogger." << endl;
+    }
+    else
+    {
+        cout << "Destroying StdoutLogger with scope: " << this->scope << "." << endl;
+    }
 }
 
 void StdoutLogger::log(const BaseLogger::LogLevel log_level, const string &message) const
@@ -48,7 +55,8 @@ void StdoutLogger::log(const BaseLogger::LogLevel log_level, const string &messa
     // Scope requires c-string handling
     const size_t SCOPE_BUFFER_LENGTH = strlen(this->scope) + 3;
     char *SCOPE_BUFFER = (char *) malloc(SCOPE_BUFFER_LENGTH * sizeof(char));
-    if (!SCOPE_BUFFER) {
+    if (!SCOPE_BUFFER)
+    {
         exit(EXIT_FAILURE);
     }
     SCOPE_BUFFER[0] = '(';
@@ -71,11 +79,14 @@ void StdoutLogger::log(const BaseLogger::LogLevel log_level, const string &messa
 StdoutLogger &StdoutLogger::operator=(const StdoutLogger &other)
 {
     cout << "Assigning StdoutLogger with scope " << other.scope << " to StdoutLogger with scope " << this->scope << "." << endl;
-    if (this != &other) {
+    if (this != &other)
+    {
         BaseLogger::operator=(other);
         this->ansi_codes_enabled = other.ansi_codes_enabled;
         this->ansi_code_map = other.ansi_code_map;
-    } else {
+    }
+    else
+    {
         cout << "Self-assignment detected. No-op." << endl;
     }
     return *this;
@@ -83,6 +94,7 @@ StdoutLogger &StdoutLogger::operator=(const StdoutLogger &other)
 
 StdoutLogger& StdoutLogger::operator=(StdoutLogger&& other)
 {
+    cout << "Assigning StdoutLogger with scope " << other.scope << " to StdoutLogger with scope " << this->scope << " using move assignment operator." << endl;
     if (this != &other)
     {
         BaseLogger::operator=(move(other));
@@ -90,7 +102,9 @@ StdoutLogger& StdoutLogger::operator=(StdoutLogger&& other)
         this->ansi_code_map = move(other.ansi_code_map);
         other.ansi_codes_enabled = StdoutLogger::DEFAULT_ANSI_CODES_ENABLED;
         other.ansi_code_map = StdoutLogger::AnsiCodeMap();
-    } else {
+    }
+    else
+    {
         cout << "Self-assignment detected. No-op." << endl;
     }
     return *this;

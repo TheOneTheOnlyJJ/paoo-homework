@@ -1,3 +1,7 @@
+#include <memory>
+#include <iostream>
+#include <fstream>
+#include <mutex>
 #include "BaseLogger.hpp"
 #include "StdoutLogger.hpp"
 #include "utils.hpp"
@@ -47,10 +51,12 @@ int runSummation(const BaseLogger* logger)
 
 int main()
 {
+    shared_ptr<ofstream> lifecycle_log_file_stream = make_shared<ofstream>("./logs/loggerLifecycleLogs.txt");
+    shared_ptr<mutex> lifecycle_log_mutex = make_shared<mutex>();
     // Initialise loggers
-    StdoutLogger main_logger("main", BaseLogger::LogLevel::SILLY);
-    StdoutLogger summation_logger("summation", BaseLogger::LogLevel::SILLY);
-    BaseLogger *maybe_base_logger = new StdoutLogger("maybe-base");
+    StdoutLogger main_logger("main", BaseLogger::LogLevel::SILLY, lifecycle_log_file_stream, lifecycle_log_mutex);
+    StdoutLogger summation_logger("summation", BaseLogger::LogLevel::SILLY, lifecycle_log_file_stream, lifecycle_log_mutex);
+    BaseLogger *maybe_base_logger = new StdoutLogger("maybe-base", lifecycle_log_file_stream, lifecycle_log_mutex);
 
     // Set logger ANSI codes
     // main_logger.info("Setting custom color to main logger.");
@@ -78,7 +84,7 @@ int main()
     // Test move constructor
     StdoutLogger main_logger_2 = move(main_logger);
     main_logger_2.warn("I am main logger 2, just moved from main logger.");
-    StdoutLogger main_logger_3("main-3");
+    StdoutLogger main_logger_3("main-3", lifecycle_log_file_stream, lifecycle_log_mutex);
     main_logger_3.info("Main logger 2 will move into me.");
     main_logger_3 = move(main_logger_2);
 
@@ -86,5 +92,7 @@ int main()
     maybe_base_logger->info("I'm the maybe base logger.");
     delete maybe_base_logger;
 
+    // TODO: Add a thread to test the mutex
+    // TODO: Add unique_ptr somewhere
     return 0;
 }

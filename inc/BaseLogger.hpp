@@ -4,6 +4,10 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <memory>
+#include <iostream>
+#include <fstream>
+#include <mutex>
 #include "utils.hpp"
 
 using namespace std;
@@ -26,8 +30,8 @@ public:
     // Instance attributes
     // Constructors & destructors
     BaseLogger() = delete;
-    explicit BaseLogger(const string& scope);
-    BaseLogger(const string& scope, const BaseLogger::LogLevel log_level);
+    explicit BaseLogger(const string& scope, const shared_ptr<ofstream>& lifecycle_log_file_stream, const shared_ptr<mutex>& lifecycle_log_mutex);
+    BaseLogger(const string& scope, const BaseLogger::LogLevel log_level, const shared_ptr<ofstream>& lifecycle_log_file_stream, const shared_ptr<mutex>& lifecycle_log_mutex);
     BaseLogger(const BaseLogger& other);
     BaseLogger(BaseLogger&& other);
     virtual ~BaseLogger();
@@ -51,9 +55,12 @@ protected:
     char *scope;
     // Instance methods
     virtual void log(const BaseLogger::LogLevel log_level, const string& message) const;
+    void logLifecycleMessage(const string& message) const;
 private:
     // Static attributes
     // Static methods
     // Instance attributes
+    shared_ptr<ofstream> lifecycle_log_file_stream;
+    shared_ptr<mutex> lifecycle_log_mutex;
     // Instance methods
 };

@@ -1,26 +1,30 @@
 #include <cstring>
+#include <memory>
+#include <iostream>
+#include <fstream>
+#include <mutex>
 #include "../inc/BaseLogger.hpp"
 #include "../inc/utils.hpp"
 #include "../inc/StdoutLogger.hpp"
 
 using namespace std;
 
-StdoutLogger::StdoutLogger(const string& scope)
-    : BaseLogger::BaseLogger(scope)
+StdoutLogger::StdoutLogger(const string& scope, const shared_ptr<ofstream>& lifecycle_log_file_stream, const shared_ptr<mutex>& lifecycle_log_mutex)
+    : BaseLogger::BaseLogger(scope, lifecycle_log_file_stream, lifecycle_log_mutex)
 {
-    cout << "Initialised StdoutLogger with scope: " << this->scope << " and default log level: " << BaseLogger::logLevelToString(this->log_level) << "." << endl;
+    this->logLifecycleMessage("Initialised StdoutLogger with scope: " + string(this->scope) + " and default log level: " + BaseLogger::logLevelToString(this->log_level) + ".");
 }
 
-StdoutLogger::StdoutLogger(const string& scope, const BaseLogger::LogLevel log_level)
-    : BaseLogger::BaseLogger(scope, log_level)
+StdoutLogger::StdoutLogger(const string& scope, const BaseLogger::LogLevel log_level, const shared_ptr<ofstream>& lifecycle_log_file_stream, const shared_ptr<mutex>& lifecycle_log_mutex)
+    : BaseLogger::BaseLogger(scope, log_level, lifecycle_log_file_stream, lifecycle_log_mutex)
 {
-    cout << "Initialised StdoutLogger with scope: " << this->scope << " and log level: " << BaseLogger::logLevelToString(this->log_level) << "." << endl;
+    this->logLifecycleMessage("Initialised StdoutLogger with scope: " + string(this->scope) + " and log level: " + BaseLogger::logLevelToString(this->log_level) + ".");
 }
 
 StdoutLogger::StdoutLogger(const StdoutLogger& other) 
     : BaseLogger::BaseLogger(other), ansi_codes_enabled(other.ansi_codes_enabled), ansi_code_map(other.ansi_code_map)
 {
-    cout << "Initialised StdoutLogger with scope: " << this->scope << " and log level: " << BaseLogger::logLevelToString(this->log_level) << " using copy constructor." << endl;
+    this->logLifecycleMessage("Initialised StdoutLogger with scope: " + string(this->scope) + " and log level: " + BaseLogger::logLevelToString(this->log_level) + " using copy constructor.");
 }
 
 StdoutLogger::StdoutLogger(StdoutLogger&& other)
@@ -28,18 +32,18 @@ StdoutLogger::StdoutLogger(StdoutLogger&& other)
 {
     other.ansi_codes_enabled = StdoutLogger::DEFAULT_ANSI_CODES_ENABLED;
     other.ansi_code_map = StdoutLogger::AnsiCodeMap();
-    cout << "Initialised StdoutLogger with scope: " << this->scope << " and log level: " << BaseLogger::logLevelToString(this->log_level) << " using move constructor." << endl;
+    this->logLifecycleMessage("Initialised StdoutLogger with scope: " + string(this->scope) + " and log level: " + BaseLogger::logLevelToString(this->log_level) + " using move constructor.");
 }
 
 StdoutLogger::~StdoutLogger()
 {
     if (!this->scope)
     {
-        cout << "Destroying moved-from BaseLogger." << endl;
+        this->logLifecycleMessage("Destroying moved-from StdoutLogger.");
     }
     else
     {
-        cout << "Destroying StdoutLogger with scope: " << this->scope << "." << endl;
+        this->logLifecycleMessage("Destroying StdoutLogger with scope: " + string(this->scope) + ".");
     }
 }
 
@@ -78,7 +82,7 @@ void StdoutLogger::log(const BaseLogger::LogLevel log_level, const string &messa
 
 StdoutLogger &StdoutLogger::operator=(const StdoutLogger &other)
 {
-    cout << "Assigning StdoutLogger with scope " << other.scope << " to StdoutLogger with scope " << this->scope << "." << endl;
+    this->logLifecycleMessage("Assigning StdoutLogger with scope " + string(other.scope) + " to StdoutLogger with scope " + string(this->scope) + ".");
     if (this != &other)
     {
         BaseLogger::operator=(other);
@@ -87,14 +91,14 @@ StdoutLogger &StdoutLogger::operator=(const StdoutLogger &other)
     }
     else
     {
-        cout << "Self-assignment detected. No-op." << endl;
+        this->logLifecycleMessage("Self-assignment detected. No-op.");
     }
     return *this;
 }
 
 StdoutLogger& StdoutLogger::operator=(StdoutLogger&& other)
 {
-    cout << "Assigning StdoutLogger with scope " << other.scope << " to StdoutLogger with scope " << this->scope << " using move assignment operator." << endl;
+    this->logLifecycleMessage("Assigning StdoutLogger with scope " + string(other.scope) + " to StdoutLogger with scope " + string(this->scope) + " using move assignment operator.");
     if (this != &other)
     {
         BaseLogger::operator=(move(other));
@@ -105,7 +109,7 @@ StdoutLogger& StdoutLogger::operator=(StdoutLogger&& other)
     }
     else
     {
-        cout << "Self-assignment detected. No-op." << endl;
+        this->logLifecycleMessage("Self-assignment detected. No-op.");
     }
     return *this;
 }
@@ -113,36 +117,36 @@ StdoutLogger& StdoutLogger::operator=(StdoutLogger&& other)
 
 vector<AnsiCode> StdoutLogger::getTimestampAnsiCodes() const
 {
-    cout << "Getting timestamp ANSI codes." << endl;
+    this->logLifecycleMessage("Getting timestamp ANSI codes.");
     return this->ansi_code_map.timestamp;
 }
 
 void StdoutLogger::setTimestampAnsiCodes(const vector<AnsiCode> ansi_codes)
 {
-    cout << "Setting timestamp ANSI codes." << endl;
+    this->logLifecycleMessage("Setting timestamp ANSI codes.");
     this->ansi_code_map.timestamp = ansi_codes;
 }
 
 vector<AnsiCode> StdoutLogger::getScopeAnsiCodes() const
 {
-    cout << "Getting scope ANSI codes." << endl;
+    this->logLifecycleMessage("Getting scope ANSI codes.");
     return this->ansi_code_map.scope;
 }
 
 void StdoutLogger::setScopeAnsiCodes(const vector<AnsiCode> ansi_codes)
 {
-    cout << "Setting scope ANSI codes." << endl;
+    this->logLifecycleMessage("Setting scope ANSI codes.");
     this->ansi_code_map.scope = ansi_codes;
 }
 
 vector<AnsiCode> StdoutLogger::getLogLevelAnsiCodes(const BaseLogger::LogLevel log_level) const
 {
-    cout << "Getting log level " << BaseLogger::logLevelToString(log_level) << " ANSI codes." << endl;
+    this->logLifecycleMessage("Getting log level " + BaseLogger::logLevelToString(log_level) + " ANSI codes.");
     return this->ansi_code_map.level.at(log_level);
 }
 
 void StdoutLogger::setLogLevelAnsiCodes(const BaseLogger::LogLevel log_level, const vector<AnsiCode> ansi_codes)
 {
-    cout << "Setting log level " << BaseLogger::logLevelToString(log_level) << " ANSI codes." << endl;
+    this->logLifecycleMessage("Setting log level " + BaseLogger::logLevelToString(log_level) + " ANSI codes.");
     this->ansi_code_map.level[log_level] = ansi_codes;
 }

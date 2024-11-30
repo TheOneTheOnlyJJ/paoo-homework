@@ -7,10 +7,10 @@ string getAnsiCode(const AnsiCode color)
     return "\033[" + to_string((uint8_t)color) + "m";
 }
 
-string wrapWithAnsiCodes(const vector<AnsiCode>& ansi_codes, const string& target)
+string wrapWithAnsiCodes(const vector<AnsiCode> &ansi_codes, const string &target)
 {
     ostringstream oss;
-    for (const AnsiCode& code : ansi_codes)
+    for (const AnsiCode &code : ansi_codes)
     {
         oss << getAnsiCode(code);
     }

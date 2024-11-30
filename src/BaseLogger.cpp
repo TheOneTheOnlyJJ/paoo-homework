@@ -9,7 +9,7 @@
 
 using namespace std;
 
-BaseLogger::BaseLogger(const string& scope, const shared_ptr<ofstream>& lifecycle_log_file_stream, const shared_ptr<mutex>& lifecycle_log_mutex)
+BaseLogger::BaseLogger(const string &scope, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex)
     : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(BaseLogger::DEFAULT_LOG_LEVEL), lifecycle_log_file_stream(lifecycle_log_file_stream), lifecycle_log_mutex(lifecycle_log_mutex)
 {
     if (!this->scope)
@@ -20,7 +20,7 @@ BaseLogger::BaseLogger(const string& scope, const shared_ptr<ofstream>& lifecycl
     this->logLifecycleMessage("Initialised BaseLogger with scope: " + string(this->scope) + " and default log level: " + BaseLogger::logLevelToString(this->log_level) + ".");
 }
 
-BaseLogger::BaseLogger(const string& scope, const BaseLogger::LogLevel log_level, const shared_ptr<ofstream>& lifecycle_log_file_stream, const shared_ptr<mutex>& lifecycle_log_mutex)
+BaseLogger::BaseLogger(const string &scope, const BaseLogger::LogLevel log_level, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex)
     : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(log_level), lifecycle_log_file_stream(lifecycle_log_file_stream), lifecycle_log_mutex(lifecycle_log_mutex)
 {
     if (!this->scope)
@@ -31,7 +31,7 @@ BaseLogger::BaseLogger(const string& scope, const BaseLogger::LogLevel log_level
     this->logLifecycleMessage("Initialised BaseLogger with scope: " + string(this->scope) + " and log level: " + BaseLogger::logLevelToString(this->log_level) + ".");
 }
 
-BaseLogger::BaseLogger(const BaseLogger& other) 
+BaseLogger::BaseLogger(const BaseLogger &other) 
     : scope((char *) malloc((strlen(other.scope) + 1) * sizeof(char))), log_level(other.log_level), lifecycle_log_file_stream(other.lifecycle_log_file_stream), lifecycle_log_mutex(other.lifecycle_log_mutex)
 {
     if (!this->scope)
@@ -42,7 +42,7 @@ BaseLogger::BaseLogger(const BaseLogger& other)
     this->logLifecycleMessage("Initialised BaseLogger with scope: " + string(this->scope) + " and log level: " + BaseLogger::logLevelToString(this->log_level) + " using copy constructor.");
 }
 
-BaseLogger::BaseLogger(BaseLogger&& other)
+BaseLogger::BaseLogger(BaseLogger &&other)
     : scope(other.scope), log_level(other.log_level), lifecycle_log_file_stream(other.lifecycle_log_file_stream), lifecycle_log_mutex(other.lifecycle_log_mutex)
 {
     other.scope = nullptr;
@@ -62,7 +62,7 @@ BaseLogger::~BaseLogger()
     }
 }
 
-void BaseLogger::log(const BaseLogger::LogLevel log_level, const string& message) const
+void BaseLogger::log(const BaseLogger::LogLevel log_level, const string &message) const
 {
     this->logLifecycleMessage("Base log method implementation. No-op.");
 }
@@ -75,7 +75,7 @@ void BaseLogger::logLifecycleMessage(const string &message) const
     }
 }
 
-BaseLogger& BaseLogger::operator=(const BaseLogger& other)
+BaseLogger &BaseLogger::operator=(const BaseLogger &other)
 {
     this->logLifecycleMessage("Assigning BaseLogger with scope " + string(other.scope) + " to BaseLogger with scope " + string(this->scope) + ".");
     if (this != &other)
@@ -97,7 +97,7 @@ BaseLogger& BaseLogger::operator=(const BaseLogger& other)
     return *this;
 }
 
-BaseLogger& BaseLogger::operator=(BaseLogger&& other)
+BaseLogger &BaseLogger::operator=(BaseLogger &&other)
 {
     this->logLifecycleMessage("Assigning BaseLogger with scope " + string(other.scope) + " to BaseLogger with scope " + string(this->scope) + " using move assignment operator.");
     if (this != &other)
@@ -140,32 +140,32 @@ string BaseLogger::logLevelToString(const BaseLogger::LogLevel log_level)
     }
 }
 
-void BaseLogger::silly(const string& message) const
+void BaseLogger::silly(const string &message) const
 {
     this->log(BaseLogger::LogLevel::SILLY, message);
 }
 
-void BaseLogger::verbose(const string& message) const
+void BaseLogger::verbose(const string &message) const
 {
     this->log(BaseLogger::LogLevel::VERBOSE, message);
 }
 
-void BaseLogger::debug(const string& message) const
+void BaseLogger::debug(const string &message) const
 {
     this->log(BaseLogger::LogLevel::DEBUG, message);
 }
 
-void BaseLogger::info(const string& message) const
+void BaseLogger::info(const string &message) const
 {
     this->log(BaseLogger::LogLevel::INFO, message);
 }
 
-void BaseLogger::warn(const string& message) const
+void BaseLogger::warn(const string &message) const
 {
     this->log(BaseLogger::LogLevel::WARN, message);
 }
 
-void BaseLogger::error(const string& message) const
+void BaseLogger::error(const string &message) const
 {
     this->log(BaseLogger::LogLevel::ERROR, message);
 }

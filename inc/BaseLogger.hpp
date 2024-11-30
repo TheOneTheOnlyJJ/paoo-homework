@@ -30,20 +30,20 @@ public:
     // Instance attributes
     // Constructors & destructors
     BaseLogger() = delete;
-    explicit BaseLogger(const string& scope, const shared_ptr<ofstream>& lifecycle_log_file_stream, const shared_ptr<mutex>& lifecycle_log_mutex);
-    BaseLogger(const string& scope, const BaseLogger::LogLevel log_level, const shared_ptr<ofstream>& lifecycle_log_file_stream, const shared_ptr<mutex>& lifecycle_log_mutex);
-    BaseLogger(const BaseLogger& other);
-    BaseLogger(BaseLogger&& other);
+    explicit BaseLogger(const string &scope, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex);
+    BaseLogger(const string &scope, const BaseLogger::LogLevel log_level, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex);
+    BaseLogger(const BaseLogger &other);
+    BaseLogger(BaseLogger &&other);
     virtual ~BaseLogger();
     // Instance methods
-    BaseLogger& operator=(const BaseLogger& other);
-    BaseLogger& operator=(BaseLogger&& other);
-    void silly(const string& message) const;
-    void verbose(const string& message) const;
-    void debug(const string& message) const;
-    void info(const string& message) const;
-    void warn(const string& message) const;
-    void error(const string& message) const;
+    BaseLogger &operator=(const BaseLogger &other);
+    BaseLogger &operator=(BaseLogger &&other);
+    void silly(const string &message) const;
+    void verbose(const string &message) const;
+    void debug(const string &message) const;
+    void info(const string &message) const;
+    void warn(const string &message) const;
+    void error(const string &message) const;
     BaseLogger::LogLevel getLogLevel() const;
     void setLogLevel(const BaseLogger::LogLevel log_level);
 protected:
@@ -54,8 +54,8 @@ protected:
     BaseLogger::LogLevel log_level;
     char *scope;
     // Instance methods
-    virtual void log(const BaseLogger::LogLevel log_level, const string& message) const;
-    void logLifecycleMessage(const string& message) const;
+    virtual void log(const BaseLogger::LogLevel log_level, const string &message) const;
+    void logLifecycleMessage(const string &message) const;
 private:
     // Static attributes
     // Static methods

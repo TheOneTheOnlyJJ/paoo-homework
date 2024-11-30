@@ -9,25 +9,25 @@
 
 using namespace std;
 
-StdoutLogger::StdoutLogger(const string& scope, const shared_ptr<ofstream>& lifecycle_log_file_stream, const shared_ptr<mutex>& lifecycle_log_mutex)
+StdoutLogger::StdoutLogger(const string &scope, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex)
     : BaseLogger::BaseLogger(scope, lifecycle_log_file_stream, lifecycle_log_mutex)
 {
     this->logLifecycleMessage("Initialised StdoutLogger with scope: " + string(this->scope) + " and default log level: " + BaseLogger::logLevelToString(this->log_level) + ".");
 }
 
-StdoutLogger::StdoutLogger(const string& scope, const BaseLogger::LogLevel log_level, const shared_ptr<ofstream>& lifecycle_log_file_stream, const shared_ptr<mutex>& lifecycle_log_mutex)
+StdoutLogger::StdoutLogger(const string &scope, const BaseLogger::LogLevel log_level, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex)
     : BaseLogger::BaseLogger(scope, log_level, lifecycle_log_file_stream, lifecycle_log_mutex)
 {
     this->logLifecycleMessage("Initialised StdoutLogger with scope: " + string(this->scope) + " and log level: " + BaseLogger::logLevelToString(this->log_level) + ".");
 }
 
-StdoutLogger::StdoutLogger(const StdoutLogger& other) 
+StdoutLogger::StdoutLogger(const StdoutLogger &other) 
     : BaseLogger::BaseLogger(other), ansi_codes_enabled(other.ansi_codes_enabled), ansi_code_map(other.ansi_code_map)
 {
     this->logLifecycleMessage("Initialised StdoutLogger with scope: " + string(this->scope) + " and log level: " + BaseLogger::logLevelToString(this->log_level) + " using copy constructor.");
 }
 
-StdoutLogger::StdoutLogger(StdoutLogger&& other)
+StdoutLogger::StdoutLogger(StdoutLogger &&other)
     : BaseLogger::BaseLogger(move(other)), ansi_codes_enabled(other.ansi_codes_enabled), ansi_code_map(move(other.ansi_code_map))
 {
     other.ansi_codes_enabled = StdoutLogger::DEFAULT_ANSI_CODES_ENABLED;
@@ -96,7 +96,7 @@ StdoutLogger &StdoutLogger::operator=(const StdoutLogger &other)
     return *this;
 }
 
-StdoutLogger& StdoutLogger::operator=(StdoutLogger&& other)
+StdoutLogger &StdoutLogger::operator=(StdoutLogger &&other)
 {
     this->logLifecycleMessage("Assigning StdoutLogger with scope " + string(other.scope) + " to StdoutLogger with scope " + string(this->scope) + " using move assignment operator.");
     if (this != &other)

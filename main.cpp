@@ -4,6 +4,7 @@
 #include <mutex>
 #include "BaseLogger.hpp"
 #include "StdoutLogger.hpp"
+#include "FileLogger.hpp"
 #include "utils.hpp"
 
 using namespace std;
@@ -53,9 +54,10 @@ int main()
 {
     shared_ptr<ofstream> lifecycle_log_file_stream = make_shared<ofstream>("./logs/loggerLifecycleLogs.txt");
     shared_ptr<mutex> lifecycle_log_mutex = make_shared<mutex>();
+    unique_ptr<ofstream> log_file_stream = make_unique<ofstream>("./logs/summationLogs.txt");
     // Initialise loggers
     StdoutLogger main_logger("main", BaseLogger::LogLevel::SILLY, lifecycle_log_file_stream, lifecycle_log_mutex);
-    StdoutLogger summation_logger("summation", BaseLogger::LogLevel::SILLY, lifecycle_log_file_stream, lifecycle_log_mutex);
+    FileLogger summation_logger("summation", move(log_file_stream), BaseLogger::LogLevel::SILLY, lifecycle_log_file_stream, lifecycle_log_mutex);
     BaseLogger *maybe_base_logger = new StdoutLogger("maybe-base", lifecycle_log_file_stream, lifecycle_log_mutex);
 
     // Set logger ANSI codes
@@ -66,9 +68,9 @@ int main()
     // summation_logger.setScopeAnsiCodes({ AnsiCode::UNDERLINE, AnsiCode::MAGENTA });
 
     // Test logger output
-    // summation_logger.verbose("Running summation...");
-    // int sum = runSummation(&summation_logger);
-    // summation_logger.verbose("Summation result is " + to_string(sum) + ".");
+    summation_logger.verbose("Running summation...");
+    int sum = runSummation(&summation_logger);
+    summation_logger.verbose("Summation result is " + to_string(sum) + ".");
 
     // Disable logger ANSI codes
     // main_logger.info("Disabling ANSI codes on summation logger.");
@@ -82,17 +84,16 @@ int main()
     // main_logger.debug("This is a main logger message after being assigned to the summation logger.");
 
     // Test move constructor
-    StdoutLogger main_logger_2 = move(main_logger);
-    main_logger_2.warn("I am main logger 2, just moved from main logger.");
-    StdoutLogger main_logger_3("main-3", lifecycle_log_file_stream, lifecycle_log_mutex);
-    main_logger_3.info("Main logger 2 will move into me.");
-    main_logger_3 = move(main_logger_2);
+    // StdoutLogger main_logger_2 = move(main_logger);
+    // main_logger_2.warn("I am main logger 2, just moved from main logger.");
+    // StdoutLogger main_logger_3("main-3", lifecycle_log_file_stream, lifecycle_log_mutex);
+    // main_logger_3.info("Main logger 2 will move into me.");
+    // main_logger_3 = move(main_logger_2);
 
     // Test polymorphism
-    maybe_base_logger->info("I'm the maybe base logger.");
-    delete maybe_base_logger;
+    // maybe_base_logger->info("I'm the maybe base logger.");
+    // delete maybe_base_logger;
 
     // TODO: Add a thread to test the mutex
-    // TODO: Add unique_ptr somewhere
     return 0;
 }

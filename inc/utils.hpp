@@ -36,5 +36,5 @@ enum class AnsiCode : uint8_t
 
 
 string getAnsiCode(const AnsiCode color);
-string wrapWithAnsiCodes(const vector<AnsiCode>& ansi_codes, const string& target);
+string wrapWithAnsiCodes(const vector<AnsiCode> &ansi_codes, const string &target);
 string getCurrentDateTime();

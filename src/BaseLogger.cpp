@@ -10,7 +10,7 @@
 using namespace std;
 
 BaseLogger::BaseLogger(const string &scope, const shared_ptr<BaseLogger::LifecycleLogResources> &lifecycle_log_resources)
-    : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(BaseLogger::DEFAULT_LOG_LEVEL), lifecycle_log_resources(lifecycle_log_resources)
+    : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(BaseLogger::DEFAULT_LOG_LEVEL), lifecycle_log_resources(move(lifecycle_log_resources))
 {
     if (!this->scope)
     {
@@ -21,7 +21,7 @@ BaseLogger::BaseLogger(const string &scope, const shared_ptr<BaseLogger::Lifecyc
 }
 
 BaseLogger::BaseLogger(const string &scope, const BaseLogger::LogLevel log_level, const shared_ptr<BaseLogger::LifecycleLogResources> &lifecycle_log_resources)
-    : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(log_level), lifecycle_log_resources(lifecycle_log_resources)
+    : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(log_level), lifecycle_log_resources(move(lifecycle_log_resources))
 {
     if (!this->scope)
     {
@@ -43,7 +43,7 @@ BaseLogger::BaseLogger(const BaseLogger &other)
 }
 
 BaseLogger::BaseLogger(BaseLogger &&other)
-    : scope(other.scope), log_level(other.log_level), lifecycle_log_resources(other.lifecycle_log_resources)
+    : scope(other.scope), log_level(other.log_level), lifecycle_log_resources(move(other.lifecycle_log_resources))
 {
     other.scope = nullptr;
     this->logLifecycleMessage("[BaseLogger] [" + string(this->scope) + "] [" + BaseLogger::logLevelToString(this->log_level) + "]: Initialised with move constructor.");

@@ -9,75 +9,75 @@
 
 using namespace std;
 
-BaseLogger::BaseLogger(const string &scope, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex)
-    : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(BaseLogger::DEFAULT_LOG_LEVEL), lifecycle_log_file_stream(lifecycle_log_file_stream), lifecycle_log_mutex(lifecycle_log_mutex)
+BaseLogger::BaseLogger(const string &scope, const shared_ptr<BaseLogger::LifecycleLogResources> &lifecycle_log_resources)
+    : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(BaseLogger::DEFAULT_LOG_LEVEL), lifecycle_log_resources(lifecycle_log_resources)
 {
     if (!this->scope)
     {
         exit(EXIT_FAILURE);
     }
     strcpy(this->scope, scope.c_str());
-    this->logLifecycleMessage("Initialised BaseLogger with scope: " + string(this->scope) + " and default log level: " + BaseLogger::logLevelToString(this->log_level) + ".");
+    this->logLifecycleMessage("[BaseLogger] [" + string(this->scope) + "] [" + BaseLogger::logLevelToString(this->log_level) + " (default)]: Initialised.");
 }
 
-BaseLogger::BaseLogger(const string &scope, const BaseLogger::LogLevel log_level, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex)
-    : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(log_level), lifecycle_log_file_stream(lifecycle_log_file_stream), lifecycle_log_mutex(lifecycle_log_mutex)
+BaseLogger::BaseLogger(const string &scope, const BaseLogger::LogLevel log_level, const shared_ptr<BaseLogger::LifecycleLogResources> &lifecycle_log_resources)
+    : scope((char *) malloc((scope.length() + 1) * sizeof(char))), log_level(log_level), lifecycle_log_resources(lifecycle_log_resources)
 {
     if (!this->scope)
     {
         exit(EXIT_FAILURE);
     }
     strcpy(this->scope, scope.c_str());
-    this->logLifecycleMessage("Initialised BaseLogger with scope: " + string(this->scope) + " and log level: " + BaseLogger::logLevelToString(this->log_level) + ".");
+    this->logLifecycleMessage("[BaseLogger] [" + string(this->scope) + "] [" + BaseLogger::logLevelToString(this->log_level) + "]: Initialised.");
 }
 
 BaseLogger::BaseLogger(const BaseLogger &other) 
-    : scope((char *) malloc((strlen(other.scope) + 1) * sizeof(char))), log_level(other.log_level), lifecycle_log_file_stream(other.lifecycle_log_file_stream), lifecycle_log_mutex(other.lifecycle_log_mutex)
+    : scope((char *) malloc((strlen(other.scope) + 1) * sizeof(char))), log_level(other.log_level), lifecycle_log_resources(other.lifecycle_log_resources)
 {
     if (!this->scope)
     {
         exit(EXIT_FAILURE);
     }
     strcpy(this->scope, other.scope);
-    this->logLifecycleMessage("Initialised BaseLogger with scope: " + string(this->scope) + " and log level: " + BaseLogger::logLevelToString(this->log_level) + " using copy constructor.");
+    this->logLifecycleMessage("[BaseLogger] [" + string(this->scope) + "] [" + BaseLogger::logLevelToString(this->log_level) + "]: Initialised with copy constructor.");
 }
 
 BaseLogger::BaseLogger(BaseLogger &&other)
-    : scope(other.scope), log_level(other.log_level), lifecycle_log_file_stream(other.lifecycle_log_file_stream), lifecycle_log_mutex(other.lifecycle_log_mutex)
+    : scope(other.scope), log_level(other.log_level), lifecycle_log_resources(other.lifecycle_log_resources)
 {
     other.scope = nullptr;
-    this->logLifecycleMessage("Initialised BaseLogger with scope: " + string(this->scope) + " and log level: " + BaseLogger::logLevelToString(this->log_level) + " using move constructor.");
+    this->logLifecycleMessage("[BaseLogger] [" + string(this->scope) + "] [" + BaseLogger::logLevelToString(this->log_level) + "]: Initialised with move constructor.");
 }
 
 BaseLogger::~BaseLogger()
 {
     if (!this->scope)
     {
-        this->logLifecycleMessage("Destroying moved-from BaseLogger.");
+        this->logLifecycleMessage("[BaseLogger]: Destroying moved-from instance.");
     }
     else
     {
-        this->logLifecycleMessage("Destroying BaseLogger with scope: " + string(this->scope) + ".");
+        this->logLifecycleMessage("[BaseLogger] [" + string(this->scope) + "]: Destroying instance.");
         free(this->scope);
     }
 }
 
 void BaseLogger::log(const BaseLogger::LogLevel log_level, const string &message) const
 {
-    this->logLifecycleMessage("Base log method implementation. No-op.");
+    throw new runtime_error("[BaseLogger]: Log method not implemented!");
 }
 
 void BaseLogger::logLifecycleMessage(const string &message) const
 {
-    lock_guard<mutex> lock(*this->lifecycle_log_mutex);
-    if (this->lifecycle_log_file_stream && this->lifecycle_log_file_stream->is_open()) {
-        *this->lifecycle_log_file_stream << message << endl;
+    lock_guard<mutex> lock(*this->lifecycle_log_resources->file_mutex);
+    if (this->lifecycle_log_resources->file_stream && this->lifecycle_log_resources->file_stream->is_open()) {
+        *this->lifecycle_log_resources->file_stream << "[" << getCurrentDateTime() << "] " << message << endl;
     }
 }
 
 BaseLogger &BaseLogger::operator=(const BaseLogger &other)
 {
-    this->logLifecycleMessage("Assigning BaseLogger with scope " + string(other.scope) + " to BaseLogger with scope " + string(this->scope) + ".");
+    this->logLifecycleMessage("[BaseLogger] [" + string(other.scope) + "]: Assigning to [BaseLogger] [" + string(this->scope) + "] with assignment operator.");
     if (this != &other)
     {
         this->scope = (char *) realloc(this->scope, (strlen(other.scope) + 1) * sizeof(char));
@@ -87,19 +87,18 @@ BaseLogger &BaseLogger::operator=(const BaseLogger &other)
         }
         strcpy(this->scope, other.scope);
         this->log_level = other.log_level;
-        this->lifecycle_log_file_stream = other.lifecycle_log_file_stream;
-        this->lifecycle_log_mutex = other.lifecycle_log_mutex;
+        this->lifecycle_log_resources = other.lifecycle_log_resources;
     }
     else
     {
-        this->logLifecycleMessage("Self-assignment detected. No-op.");
+        this->logLifecycleMessage("[BaseLogger] [" + string(other.scope) + "]: Self assignment detected. No-op.");
     }
     return *this;
 }
 
 BaseLogger &BaseLogger::operator=(BaseLogger &&other)
 {
-    this->logLifecycleMessage("Assigning BaseLogger with scope " + string(other.scope) + " to BaseLogger with scope " + string(this->scope) + " using move assignment operator.");
+    this->logLifecycleMessage("[BaseLogger] [" + string(other.scope) + "]: Assigning to [BaseLogger] [" + string(this->scope) + "] with move assignment operator.");
     if (this != &other)
     {
         if (this->scope)
@@ -108,13 +107,12 @@ BaseLogger &BaseLogger::operator=(BaseLogger &&other)
         }
         this->scope = other.scope;
         this->log_level = other.log_level;
-        this->lifecycle_log_file_stream = other.lifecycle_log_file_stream;
-        this->lifecycle_log_mutex = other.lifecycle_log_mutex;
+        this->lifecycle_log_resources = other.lifecycle_log_resources;
         other.scope = nullptr;
     }
     else
     {
-        this->logLifecycleMessage("Self-assignment detected. No-op.");
+        this->logLifecycleMessage("[BaseLogger] [" + string(other.scope) + "]: Self move assignment detected. No-op.");
     }
     return *this;
 }
@@ -172,12 +170,12 @@ void BaseLogger::error(const string &message) const
 
 BaseLogger::LogLevel BaseLogger::getLogLevel() const
 {
-    this->logLifecycleMessage("Getting log level.");
+    this->logLifecycleMessage("[BaseLogger] [" + string(this->scope) + "]: Getting log level (" + string(this->scope) + ").");
     return this->log_level;
 }
 
 void BaseLogger::setLogLevel(const BaseLogger::LogLevel log_level)
 {
-    this->logLifecycleMessage("Setting log level to: " + BaseLogger::logLevelToString(log_level) + ".");
+    this->logLifecycleMessage("[BaseLogger] [" + string(this->scope) + "]: Setting log level to " + BaseLogger::logLevelToString(log_level) + ".");
     this->log_level = log_level;
 }

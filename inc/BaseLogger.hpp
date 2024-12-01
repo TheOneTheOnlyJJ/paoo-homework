@@ -24,14 +24,23 @@ public:
         WARN,
         ERROR
     };
+    struct LifecycleLogResources
+    {
+        const shared_ptr<ofstream> file_stream;
+        const shared_ptr<mutex> file_mutex;
+
+        LifecycleLogResources(const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex)
+            : file_stream(lifecycle_log_file_stream), file_mutex(lifecycle_log_mutex)
+        {}
+    };
     // Static attributes
     static const BaseLogger::LogLevel DEFAULT_LOG_LEVEL = BaseLogger::LogLevel::INFO;
     // Static methods
     // Instance attributes
     // Constructors & destructors
     BaseLogger() = delete;
-    explicit BaseLogger(const string &scope, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex);
-    BaseLogger(const string &scope, const BaseLogger::LogLevel log_level, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex);
+    explicit BaseLogger(const string &scope, const shared_ptr<BaseLogger::LifecycleLogResources> &lifecycle_log_resources);
+    BaseLogger(const string &scope, const BaseLogger::LogLevel log_level, const shared_ptr<BaseLogger::LifecycleLogResources> &lifecycle_log_resources);
     BaseLogger(const BaseLogger &other);
     BaseLogger(BaseLogger &&other);
     virtual ~BaseLogger();
@@ -60,7 +69,6 @@ private:
     // Static attributes
     // Static methods
     // Instance attributes
-    shared_ptr<ofstream> lifecycle_log_file_stream;
-    shared_ptr<mutex> lifecycle_log_mutex;
+    shared_ptr<BaseLogger::LifecycleLogResources> lifecycle_log_resources;
     // Instance methods
 };

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <mutex>
+#include <thread>
 #include "BaseLogger.hpp"
 #include "StdoutLogger.hpp"
 #include "FileLogger.hpp"
@@ -13,7 +14,7 @@ int runSummation(const BaseLogger* logger)
 {
     int sum = 0;
     string input;
-    logger->info("Enter integers to sum, end to exit.");
+    cout << "Enter integers to sum, end to exit." << endl;
     while (true)
     {
         cout << "> ";
@@ -50,50 +51,55 @@ int runSummation(const BaseLogger* logger)
     return sum;
 }
 
-int main()
+void testLoggers(const shared_ptr<BaseLogger::LifecycleLogResources> &lifecycle_log_resources)
 {
-    shared_ptr<ofstream> lifecycle_log_file_stream = make_shared<ofstream>("./logs/loggerLifecycleLogs.txt");
-    shared_ptr<mutex> lifecycle_log_mutex = make_shared<mutex>();
-    unique_ptr<ofstream> log_file_stream = make_unique<ofstream>("./logs/summationLogs.txt");
-    // Initialise loggers
-    StdoutLogger main_logger("main", BaseLogger::LogLevel::SILLY, lifecycle_log_file_stream, lifecycle_log_mutex);
-    FileLogger summation_logger("summation", move(log_file_stream), BaseLogger::LogLevel::SILLY, lifecycle_log_file_stream, lifecycle_log_mutex);
-    BaseLogger *maybe_base_logger = new StdoutLogger("maybe-base", lifecycle_log_file_stream, lifecycle_log_mutex);
+    cout << "Beginning logger tests!" << endl;
 
-    // Set logger ANSI codes
-    // main_logger.info("Setting custom color to main logger.");
-    // main_logger.setScopeAnsiCodes({ AnsiCode::YELLOW });
-    // main_logger.info("Setting custom timestamp and scope colors on summation logger.");
-    // summation_logger.setTimestampAnsiCodes({ AnsiCode::CYAN });
-    // summation_logger.setScopeAnsiCodes({ AnsiCode::UNDERLINE, AnsiCode::MAGENTA });
-
-    // Test logger output
-    summation_logger.verbose("Running summation...");
-    int sum = runSummation(&summation_logger);
-    summation_logger.verbose("Summation result is " + to_string(sum) + ".");
-
-    // Disable logger ANSI codes
-    // main_logger.info("Disabling ANSI codes on summation logger.");
-    // summation_logger.ansi_codes_enabled = false;
-    // summation_logger.info("I lost my colors...");
-
-    // Test assignment operator
-    // main_logger.info("Assigning summation logger to main logger.");
-    // main_logger.debug("This is a main logger message before being assigned to the summation logger.");
-    // main_logger = summation_logger;
-    // main_logger.debug("This is a main logger message after being assigned to the summation logger.");
+    // Test constructors
+    StdoutLogger test_logger_1("test-1", BaseLogger::LogLevel::SILLY, lifecycle_log_resources);
+    test_logger_1.info("I am instance test-1, initialised with the SILLY log level instead of the default.");
 
     // Test move constructor
-    // StdoutLogger main_logger_2 = move(main_logger);
-    // main_logger_2.warn("I am main logger 2, just moved from main logger.");
-    // StdoutLogger main_logger_3("main-3", lifecycle_log_file_stream, lifecycle_log_mutex);
-    // main_logger_3.info("Main logger 2 will move into me.");
-    // main_logger_3 = move(main_logger_2);
+    StdoutLogger test_logger_2 = move(test_logger_1);
+    test_logger_2.info("I am instance test-2, but initialised by moving test-1 into me.");
+
+    // Test move assignment operator
+    StdoutLogger test_logger_3("test-3", lifecycle_log_resources);
+    test_logger_3.info("I am instance test-3, but test-2 will move into me.");
+    test_logger_3 = move(test_logger_2);
+    test_logger_3.info("I am instance test-3, but test-2 moved into me.");
+
+    // Test assignment operator
+    StdoutLogger test_logger_4("test-4", lifecycle_log_resources);
+    test_logger_4.info("I am instance test-4 and test-3 will get assigned to me.");
+    test_logger_4 = test_logger_3;
+    test_logger_4.info("I am instance test-4, but test-3 was assigned to me.");
 
     // Test polymorphism
-    // maybe_base_logger->info("I'm the maybe base logger.");
-    // delete maybe_base_logger;
+    BaseLogger *maybe_base_logger = new StdoutLogger("maybe-base", lifecycle_log_resources);
+    maybe_base_logger->info("I am instance maybe-base, typed as BaseLogger* but initialised as StdoutLogger. Let's see where this message ends up.");
+    delete maybe_base_logger;
 
-    // TODO: Add a thread to test the mutex
+    cout << "Logger tests done!." << endl;
+}
+
+int main()
+{
+    const shared_ptr<BaseLogger::LifecycleLogResources> lifecycle_log_resources = 
+        make_shared<BaseLogger::LifecycleLogResources>(make_shared<ofstream>("./logs/loggerLifecycleLogs.txt"), make_shared<mutex>());
+
+    // Start a thread to test loggers
+    thread testLoggersThread(testLoggers, lifecycle_log_resources);
+
+    // Run summation
+    unique_ptr<ofstream> log_file_stream = make_unique<ofstream>("./logs/summationLogs.txt");
+    FileLogger summation_logger("summation", move(log_file_stream), BaseLogger::LogLevel::SILLY, lifecycle_log_resources);
+    summation_logger.verbose("Running summation:");
+    int sum = runSummation(&summation_logger);
+    summation_logger.verbose("Summation done! Result: " + to_string(sum) + ".");
+
+    // Wait fot the test thread to finish
+    testLoggersThread.join();
+
     return 0;
 }

@@ -21,8 +21,8 @@ public:
     bool ansi_codes_enabled = DEFAULT_ANSI_CODES_ENABLED;
     // Constructors & destructors
     StdoutLogger() = delete;
-    explicit StdoutLogger(const string &scope, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex);
-    StdoutLogger(const string &scope, const BaseLogger::LogLevel log_level, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex);
+    explicit StdoutLogger(const string &scope, const shared_ptr<BaseLogger::LifecycleLogResources> &lifecycle_log_resources);
+    StdoutLogger(const string &scope, const BaseLogger::LogLevel log_level, const shared_ptr<BaseLogger::LifecycleLogResources> &lifecycle_log_resources);
     StdoutLogger(const StdoutLogger &other);
     StdoutLogger(StdoutLogger &&other);
     ~StdoutLogger();

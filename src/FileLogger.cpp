@@ -4,33 +4,33 @@
 
 using namespace std;
 
-FileLogger::FileLogger(const string &scope, unique_ptr<ofstream> log_file_stream, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex)
-    : BaseLogger::BaseLogger(scope, lifecycle_log_file_stream, lifecycle_log_mutex), log_file_stream(move(log_file_stream))
+FileLogger::FileLogger(const string &scope, unique_ptr<ofstream> log_file_stream, const shared_ptr<BaseLogger::LifecycleLogResources> &lifecycle_log_resources)
+    : BaseLogger::BaseLogger(scope, lifecycle_log_resources), log_file_stream(move(log_file_stream))
 {
-    this->logLifecycleMessage("Initialised FileLogger with scope: " + string(this->scope) + " and default log level: " + BaseLogger::logLevelToString(this->log_level) + ".");
+    this->logLifecycleMessage("[FileLogger] [" + string(this->scope) + "] [" + BaseLogger::logLevelToString(this->log_level) + " (default)]: Initialised.");
 }
 
-FileLogger::FileLogger(const string &scope, unique_ptr<ofstream> log_file_stream, const BaseLogger::LogLevel log_level, const shared_ptr<ofstream> &lifecycle_log_file_stream, const shared_ptr<mutex> &lifecycle_log_mutex)
-    : BaseLogger::BaseLogger(scope, log_level, lifecycle_log_file_stream, lifecycle_log_mutex), log_file_stream(move(log_file_stream))
+FileLogger::FileLogger(const string &scope, unique_ptr<ofstream> log_file_stream, const BaseLogger::LogLevel log_level, const shared_ptr<BaseLogger::LifecycleLogResources> &lifecycle_log_resources)
+    : BaseLogger::BaseLogger(scope, log_level, lifecycle_log_resources), log_file_stream(move(log_file_stream))
 {
-    this->logLifecycleMessage("Initialised FileLogger with scope: " + string(this->scope) + " and log level: " + BaseLogger::logLevelToString(this->log_level) + ".");
+    this->logLifecycleMessage("[FileLogger] [" + string(this->scope) + "] [" + BaseLogger::logLevelToString(this->log_level) + "]: Initialised.");
 }
 
 FileLogger::FileLogger(FileLogger &&other)
     : BaseLogger::BaseLogger(move(other)), log_file_stream(move(other.log_file_stream))
 {
-    this->logLifecycleMessage("Initialised FileLogger with scope: " + string(this->scope) + " and log level: " + BaseLogger::logLevelToString(this->log_level) + " using move constructor.");
+    this->logLifecycleMessage("[FileLogger] [" + string(this->scope) + "] [" + BaseLogger::logLevelToString(this->log_level) + "]: Initialised with move constructor.");
 }
 
 FileLogger::~FileLogger()
 {
     if (!this->scope)
     {
-        this->logLifecycleMessage("Destroying moved-from FileLogger.");
+        this->logLifecycleMessage("[FileLogger]: Destroying moved-from instance.");
     }
     else
     {
-        this->logLifecycleMessage("Destroying FileLogger with scope: " + string(this->scope) + ".");
+        this->logLifecycleMessage("[FileLogger] [" + string(this->scope) + "]: Destroying instance.");
     }
     if (this->log_file_stream && this->log_file_stream->is_open())
     {
@@ -40,7 +40,7 @@ FileLogger::~FileLogger()
 
 FileLogger &FileLogger::operator=(FileLogger &&other)
 {
-    this->logLifecycleMessage("Assigning FileLogger with scope " + string(other.scope) + " to FileLogger with scope " + string(this->scope) + " using move assignment operator.");
+    this->logLifecycleMessage("[FileLogger] [" + string(other.scope) + "]: Assigning to [FileLogger] [" + string(this->scope) + "] with move assignment operator.");
     if (this != &other)
     {
         BaseLogger::operator=(move(other));
@@ -49,7 +49,7 @@ FileLogger &FileLogger::operator=(FileLogger &&other)
     }
     else
     {
-        this->logLifecycleMessage("Self-assignment detected. No-op.");
+        this->logLifecycleMessage("[FileLogger] [" + string(other.scope) + "]: Self move assignment detected. No-op.");
     }
     return *this;
 }

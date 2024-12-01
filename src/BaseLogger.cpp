@@ -69,8 +69,9 @@ void BaseLogger::log(const BaseLogger::LogLevel log_level, const string &message
 
 void BaseLogger::logLifecycleMessage(const string &message) const
 {
-    lock_guard<mutex> lock(*this->lifecycle_log_resources->file_mutex);
-    if (this->lifecycle_log_resources->file_stream && this->lifecycle_log_resources->file_stream->is_open()) {
+    if (this->lifecycle_log_resources && this->lifecycle_log_resources->file_mutex && this->lifecycle_log_resources->file_stream && this->lifecycle_log_resources->file_stream->is_open())
+    {
+        lock_guard<mutex> lock(*this->lifecycle_log_resources->file_mutex);
         *this->lifecycle_log_resources->file_stream << "[" << getCurrentDateTime() << "] " << message << endl;
     }
 }
